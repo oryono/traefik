@@ -1,0 +1,33 @@
+on: push
+name: CI
+jobs:
+  deploy:
+    name: deploy to cluster
+    runs-on: ubuntu-latest
+    container:
+      image: docker:latest
+    steps:
+      -   uses: actions/checkout@master
+      -   name: Login to GitHub Container Registry
+          uses: docker/login-action@v1
+          with:
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.TOKEN }}
+      -   name: Prepare for Deployment
+          env:
+            TLSCAKEY: ${{ secrets.TLSCAKEY }}
+            TLSCERT: ${{ secrets.TLSCERT }}
+            TLSKEY: ${{ secrets.TLSKEY }}
+          run: |
+            mkdir -p ~/.docker
+            echo "$TLSCAKEY" > ~/.docker/ca.pem
+            echo "$TLSCERT" > ~/.docker/cert.pem
+            echo "$TLSKEY" > ~/.docker/key.pem
+
+      -   name: Deploy Swarm Stack
+          run: |
+            export DOCKER_HOST=tcp://meetyourtutor.online:2376
+            export DOCKER_TLS_VERIFY=1
+            export DOCKER_CERT_PATH=~/.docker
+            docker stack deploy --prune --with-registry-auth --resolve-image=always -c stack.yml banking --with-registry-auth
