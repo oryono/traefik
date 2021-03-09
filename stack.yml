@@ -29,7 +29,7 @@ services:
       labels:
         - "traefik.enable=true"
         # Dashboard
-        - "traefik.http.routers.traefik.rule=Host(`traefik.meetyourtutor.online`)"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.alpinebanking.software`)"
         - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.routers.traefik.tls=true"
         - "traefik.http.routers.traefik.tls.certresolver=leresolver"
